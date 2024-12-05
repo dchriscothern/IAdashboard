@@ -1,0 +1,146 @@
+install.packages("shiny")
+library(shiny)
+library(plotly)
+
+# Define the metrics data
+metrics_data <- data.frame(
+  Metric = c("TIMING CONTROL", "DISTRACTION CONTROL", "IMPULSE CONTROL",
+             "IMPROVISATION", "INSTINCTIVE LEARNING", "DECISION COMPLEXITY", "MOTOR LEARNING"  
+  ),
+  Value = c(92, 71, 36, 88, 86, 91, 30),
+  Description = c(
+    "Exceptional skill at timing attacks and reactions to opponent movements. This is a big advantage when
+attacking, attempting a throw, or reacting to takedowns and attacks at different speeds. Should be a grappler who seems to
+always time attacks, sprawls, and defensive positioning well, especially in situations when expecting one speed and getting a
+different one.",
+    "Exceptional skill at locking in attention and blocking out distractions, so athlete should show
+tremendous focus in the face of in-match distractions and be effective at shielding attention from distracting thoughts during
+competition; should play with natural steely focus.",
+    "Intermediate level skill at controlling impulses, so should generally compete with good decision patience
+but expect occasional inconsistency with impulsive mental mistakes and biting on deceptive actions against top level opponents",
+    "Exceptional skill at executing rapid counter-reactions. You should have a big advantage improvising reactions
+in the moment and be a natural play-maker when situations suddenly break down or unexpectedly change and require a
+split-second counter action.",
+    "Exceptional at recognizing subtle patterns, so expect him to pick up on 
+    offensive tendencies and cues instinctively as the game unfolds, and to
+    naturally adapt his play on the fly",
+    "Exceptionally skilled at handling complex decision rules and rapidly selecting the best action from
+multiple options. Should be more than capable of handling higher numbers of decision options at real-time match speed. This is a
+big advantage against more dynamic opponents who mix things up a lot",
+    "Intermediate skill at learning new movement sequences and patterns, so 
+    should generally incorporate and learn new mechanical skills well but expect 
+    occasional difficulties or delays when attempting to learn multiple mechanical 
+    or movement techniques at the same time or when attempting to learn more advanced 
+    or complex movement patterns."
+  )
+)
+
+# Define UI for the application
+ui <- navbarPage(
+  "InnerAthlete",
+  
+  tabPanel(
+    "Optimization Plan",
+    fluidPage(
+      titlePanel("Performance Optimization Plan"),
+      mainPanel(
+        h3("Cognitive Skills"),
+        tags$ul(
+          tags$li("Simplify decision rules and get extra reps practicing read-react decisions."),
+          tags$li("Practice visual decision keys at game speed and with rapid changes."),
+          tags$li("Drills challenging decision-making and improvisation.")
+        ),
+        h3("Recovery & Resilience"),
+        tags$ul(
+          tags$li("Focus on recovery, especially for inflammation and injury risk."),
+          tags$li("Prioritize nutrition and sleep for optimal recovery.")
+        ),
+        h3("Nutrition"),
+        tags$ul(
+          tags$li("Optimize fat intake and avoid saturated fats."),
+          tags$li("Include recovery-enhancing nutrients like cherry tart juice.")
+          ),
+        h3("Exercise & Response"),
+          tags$ul(
+            tags$li("Mod to high intensity cardio at 2-3x week with possible increase if cutting fat. "),
+            tags$li("During building phase, hypertrophy training for below average response to strength training")
+        )
+      )
+    )
+  ),
+  
+  tabPanel(
+    "Blood Analysis",
+    fluidPage(
+      titlePanel("Blood Analysis"),
+      mainPanel(
+        h3("Performance Biomarker Report"),
+        tags$iframe(
+          src = "biomarkers.png",  # Ensure correct path to the file
+          width = "100%",
+          height = "800px",
+          style = "border: none;" # No border for clean embedding
+        )
+      )
+    )
+  ),
+  
+  navbarMenu(
+    "Cognition",
+    tabPanel(
+      "S2 Cognition Test",
+      fluidPage(
+        titlePanel("S2 Cognition Test"),
+        mainPanel(
+          plotlyOutput("radar_plot"),
+          htmlOutput("recommendations")
+        )
+      )
+    )
+  )
+)
+
+# Define server logic for the application
+server <- function(input, output) {
+  # Render radar plot
+  output$radar_plot <- renderPlotly({
+    plot_ly(
+      type = 'scatterpolar',
+      fill = 'toself',
+      r = metrics_data$Value,
+      theta = metrics_data$Metric,
+      text = metrics_data$Description,
+      hoverinfo = 'text'
+    ) %>%
+      layout(
+        polar = list(radialaxis = list(visible = TRUE, range = c(0, 100))),
+        showlegend = FALSE
+      )
+  })
+  
+  # Render recommendations
+  output$recommendations <- renderUI({
+    recommendations <- HTML(
+      paste(
+        "<h3>Recommendations</h3>",
+        "<b>For Learning New Mechanics:</b>",
+        "<ol>",
+        "<li>Resist overcomplicating the learning of new mechanics; focus on one or two changes at once rather than introducing multiple or complex mechanics at once.</li>",
+        "<li>Commit high repetitions to new mechanical changes and progress repetition training from controlled settings to more match-like practice and competition settings to facilitate transfer.</li>",
+        "<li>Utilize feedback technology (video, sensors, mirrors) when first learning new techniques; feedback helps train movement patterns more quickly. Constraints-based approaches can also lead to quicker acquisition of new movement patterns and skills.</li>",
+        "</ol>",
+        "<b>For Reactive Impulses:</b>",
+        "<ol>",
+        "<li>Practice control mode drills—perform high-pressure drills/simulations in a faster, more reactive mode and then in a more controlled, deliberate mode to develop a better feel for the effects of these two modes of performance control on reactive impulses.</li>",
+        "<li>Practice impulse drills/simulations that force quick, decisive decisions under pressure, but present unpredictable and unexpected moves, fakes, or misdirection that induce strong reactive impulses that must be controlled.</li>",
+        "<li>Work on controlling reactions against strong opponent lures. Tailor drills to impulses the athlete has most difficulty controlling.</li>",
+        "</ol>"
+      )
+    )
+    recommendations
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+
